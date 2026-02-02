@@ -1,8 +1,9 @@
 import express from 'express';
 import cors from 'cors';
-import { sql, initDb } from './db.js';
+import { sql, initDb } from './server/db.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createServer as createViteServer } from 'vite';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -173,30 +174,63 @@ app.patch('/api/users/:id/role', async (req, res) => {
     }
 });
 
-// Servir archivos estáticos del frontend (solo en producción)
-if (!isDevelopment) {
-    const distPath = path.join(__dirname, '..', 'dist');
+// Configurar Vite o archivos estáticos según el modo
+async function startServer() {
+    if (isDevelopment) {
+        // Modo desarrollo: Integrar Vite middleware
+        console.log('🔧 Iniciando en modo DESARROLLO...\n');
 
-    // Servir archivos estáticos
-    app.use(express.static(distPath));
+        const vite = await createViteServer({
+            server: { middlewareMode: true },
+            appType: 'spa'
+        });
 
-    // Manejar rutas SPA - todas las rutas no-API devuelven index.html
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(distPath, 'index.html'));
+        // Usar middleware de Vite
+        app.use(vite.middlewares);
+
+        console.log('✅ Vite dev server integrado');
+    } else {
+        // Modo producción: Servir archivos estáticos
+        console.log('📦 Iniciando en modo PRODUCCIÓN...\n');
+
+        const distPath = path.join(__dirname, 'dist');
+
+        // Servir archivos estáticos
+        app.use(express.static(distPath));
+
+        // Manejar rutas SPA - todas las rutas no-API devuelven index.html
+        app.get('*', (req, res) => {
+            res.sendFile(path.join(distPath, 'index.html'));
+        });
+
+        console.log(`✅ Sirviendo frontend desde: ${distPath}`);
+    }
+
+    app.listen(port, () => {
+        console.log('\n' + '='.repeat(50));
+        console.log('🚀 SISTEMA DE GESTIÓN DE INVENTARIO');
+        console.log('   Secretaría de Trabajo del Chubut');
+        console.log('='.repeat(50));
+        console.log(`\n📡 Backend API: http://localhost:${port}/api`);
+        console.log(`🌐 Frontend: http://localhost:${port}`);
+
+        if (isDevelopment) {
+            console.log(`\n🔧 Modo: DESARROLLO`);
+            console.log(`   ✓ Hot Module Replacement (HMR) activo`);
+            console.log(`   ✓ Recarga automática habilitada`);
+        } else {
+            console.log(`\n📦 Modo: PRODUCCIÓN`);
+            console.log(`   ✓ Código optimizado y minificado`);
+            console.log(`   ✓ Frontend y Backend unificados`);
+        }
+
+        console.log(`\n✅ Servidor listo en http://localhost:${port}`);
+        console.log('='.repeat(50) + '\n');
     });
-
-    console.log(`🎨 Sirviendo frontend desde: ${distPath}`);
 }
 
-app.listen(port, () => {
-    console.log(`\n🚀 Servidor iniciado exitosamente!`);
-    console.log(`📡 Backend API: http://localhost:${port}/api`);
-    if (!isDevelopment) {
-        console.log(`🌐 Frontend: http://localhost:${port}`);
-        console.log(`📦 Modo: PRODUCCIÓN (frontend + backend unificado)`);
-    } else {
-        console.log(`🔧 Modo: DESARROLLO (solo backend API)`);
-        console.log(`💡 Inicia el frontend con: npm run dev`);
-    }
-    console.log(`\n✅ Listo para recibir peticiones\n`);
+// Iniciar el servidor
+startServer().catch(err => {
+    console.error('❌ Error al iniciar el servidor:', err);
+    process.exit(1);
 });

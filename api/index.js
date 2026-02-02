@@ -1,30 +1,31 @@
 import express from 'express';
 import cors from 'cors';
-import { sql, initDb } from './db.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { sql, initDb } from '../server/db.js';
 
 const app = express();
-const port = process.env.PORT || 3001;
-const isDevelopment = process.env.NODE_ENV !== 'production';
 
 app.use(cors());
 app.use(express.json());
 
-// Inicializar DB al arrancar
-initDb();
+// Inicializar DB
+let dbInitialized = false;
+async function ensureDbInit() {
+    if (!dbInitialized) {
+        await initDb();
+        dbInitialized = true;
+    }
+}
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
+// Health check
+app.get('/api/health', async (req, res) => {
+    await ensureDbInit();
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // --- PRODUCTOS ---
 app.get('/api/products', async (req, res) => {
     try {
+        await ensureDbInit();
         const products = await sql`SELECT * FROM products ORDER BY nombre ASC`;
         const mapped = products.map(p => ({
             id: p.id,
@@ -43,6 +44,7 @@ app.get('/api/products', async (req, res) => {
 app.post('/api/products', async (req, res) => {
     const { id, codigo, nombre, stockActual, stockMinimo, precio } = req.body;
     try {
+        await ensureDbInit();
         await sql`
       INSERT INTO products (id, codigo, nombre, stock_actual, stock_minimo, precio)
       VALUES (${id}, ${codigo}, ${nombre}, ${stockActual}, ${stockMinimo}, ${precio})
@@ -61,6 +63,7 @@ app.post('/api/products', async (req, res) => {
 
 app.delete('/api/products/:id', async (req, res) => {
     try {
+        await ensureDbInit();
         await sql`DELETE FROM products WHERE id = ${req.params.id}`;
         res.json({ success: true });
     } catch (error) {
@@ -71,6 +74,7 @@ app.delete('/api/products/:id', async (req, res) => {
 // --- MOVIMIENTOS ---
 app.get('/api/movements', async (req, res) => {
     try {
+        await ensureDbInit();
         const movements = await sql`SELECT * FROM movements ORDER BY fecha DESC`;
         const mapped = movements.map(m => ({
             id: m.id,
@@ -91,13 +95,12 @@ app.get('/api/movements', async (req, res) => {
 app.post('/api/movements', async (req, res) => {
     const { id, productoId, productoNombre, tipo, cantidad, motivo, usuario } = req.body;
     try {
-        // Registrar movimiento
+        await ensureDbInit();
         await sql`
       INSERT INTO movements (id, producto_id, producto_nombre, tipo, cantidad, motivo, usuario)
       VALUES (${id}, ${productoId}, ${productoNombre}, ${tipo}, ${cantidad}, ${motivo}, ${usuario})
     `;
 
-        // Actualizar stock
         if (tipo === 'Entrada') {
             await sql`UPDATE products SET stock_actual = stock_actual + ${cantidad} WHERE id = ${productoId}`;
         } else {
@@ -114,6 +117,7 @@ app.post('/api/movements', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
     try {
+        await ensureDbInit();
         const users = await sql`SELECT * FROM users WHERE email = ${email} AND password = ${password}`;
         if (users.length > 0) {
             const { password, ...userWithoutPassword } = users[0];
@@ -128,6 +132,7 @@ app.post('/api/auth/login', async (req, res) => {
 
 app.get('/api/users', async (req, res) => {
     try {
+        await ensureDbInit();
         const users = await sql`SELECT id, nombre, email, role, avatar FROM users ORDER BY nombre ASC`;
         res.json(users);
     } catch (error) {
@@ -138,6 +143,7 @@ app.get('/api/users', async (req, res) => {
 app.post('/api/users', async (req, res) => {
     const { id, nombre, email, password, role, avatar } = req.body;
     try {
+        await ensureDbInit();
         await sql`
       INSERT INTO users (id, nombre, email, password, role, avatar)
       VALUES (${id}, ${nombre}, ${email}, ${password}, ${role}, ${avatar})
@@ -156,6 +162,7 @@ app.post('/api/users', async (req, res) => {
 
 app.delete('/api/users/:id', async (req, res) => {
     try {
+        await ensureDbInit();
         await sql`DELETE FROM users WHERE id = ${req.params.id}`;
         res.json({ success: true });
     } catch (error) {
@@ -166,6 +173,7 @@ app.delete('/api/users/:id', async (req, res) => {
 app.patch('/api/users/:id/role', async (req, res) => {
     const { role } = req.body;
     try {
+        await ensureDbInit();
         await sql`UPDATE users SET role = ${role} WHERE id = ${req.params.id}`;
         res.json({ success: true });
     } catch (error) {
@@ -173,30 +181,5 @@ app.patch('/api/users/:id/role', async (req, res) => {
     }
 });
 
-// Servir archivos estáticos del frontend (solo en producción)
-if (!isDevelopment) {
-    const distPath = path.join(__dirname, '..', 'dist');
-
-    // Servir archivos estáticos
-    app.use(express.static(distPath));
-
-    // Manejar rutas SPA - todas las rutas no-API devuelven index.html
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(distPath, 'index.html'));
-    });
-
-    console.log(`🎨 Sirviendo frontend desde: ${distPath}`);
-}
-
-app.listen(port, () => {
-    console.log(`\n🚀 Servidor iniciado exitosamente!`);
-    console.log(`📡 Backend API: http://localhost:${port}/api`);
-    if (!isDevelopment) {
-        console.log(`🌐 Frontend: http://localhost:${port}`);
-        console.log(`📦 Modo: PRODUCCIÓN (frontend + backend unificado)`);
-    } else {
-        console.log(`🔧 Modo: DESARROLLO (solo backend API)`);
-        console.log(`💡 Inicia el frontend con: npm run dev`);
-    }
-    console.log(`\n✅ Listo para recibir peticiones\n`);
-});
+// Exportar para Vercel Serverless
+export default app;

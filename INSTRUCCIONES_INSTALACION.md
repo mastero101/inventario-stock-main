@@ -111,34 +111,67 @@ Para obtener tu API Key:
 
 ## ▶️ Paso 4: Iniciar el Sistema
 
-### Opción 1: Iniciar Frontend y Backend Simultáneamente (Recomendado)
+### 🎯 Opción 1: Script de Inicio Interactivo (Más Fácil)
+
+**Windows:**
+```bash
+start.bat
+```
+
+**Linux/Mac:**
+```bash
+chmod +x start.sh
+./start.sh
+```
+
+El script te permitirá elegir:
+1. **Modo Desarrollo** - Frontend y Backend separados con hot-reload
+2. **Modo Producción** - Ejecutable único optimizado
+3. **Solo Compilar** - Generar archivos de producción
+
+### 🔧 Opción 2: Modo Desarrollo (Recomendado para programar)
 
 ```bash
 npm run dev:all
 ```
 
 Este comando iniciará:
-- **Backend (API)** en `http://localhost:3000`
+- **Backend (API)** en `http://localhost:3001`
 - **Frontend (Interfaz)** en `http://localhost:5173`
 
-### Opción 2: Iniciar Servicios por Separado
+**Ventajas**: Recarga automática al editar código, mensajes de error detallados.
 
-**Terminal 1 - Backend:**
+### 📦 Opción 3: Modo Producción (Ejecutable Único)
+
+**Windows:**
 ```bash
-npm run server
+npm run prod
 ```
 
-**Terminal 2 - Frontend:**
+**Linux/Mac:**
 ```bash
-npm run dev
+npm run prod:linux
 ```
+
+Este comando:
+1. Compilará el frontend (React + TypeScript)
+2. Iniciará el servidor Express
+3. Servirá frontend y backend desde `http://localhost:3001`
+
+**Ventajas**: Un solo puerto, un solo proceso, optimizado y rápido.
 
 ---
 
 ## 🌐 Paso 5: Acceder al Sistema
 
+### En Modo Desarrollo:
 1. Abre tu navegador web (Chrome, Firefox, Edge, etc.)
 2. Navega a: **`http://localhost:5173`**
+3. Deberías ver la pantalla de inicio de sesión
+
+### En Modo Producción:
+1. Abre tu navegador web
+2. Navega a: **`http://localhost:3001`**
 3. Deberías ver la pantalla de inicio de sesión
 
 ### 👤 Credenciales de Acceso por Defecto
@@ -157,10 +190,14 @@ npm run dev
 
 | Comando | Descripción |
 |---------|-------------|
-| `npm run dev` | Inicia solo el frontend (Vite) |
-| `npm run server` | Inicia solo el backend (Express) |
-| `npm run dev:all` | Inicia frontend y backend simultáneamente |
-| `npm run build` | Genera la versión de producción |
+| `npm run dev` | Inicia solo el frontend (Vite dev server) |
+| `npm run server` | Inicia solo el backend (Express API) |
+| `npm run dev:all` | **Modo desarrollo: Frontend + Backend** |
+| `npm run build` | Genera la versión de producción del frontend |
+| `npm run prod` | **Modo producción: Compila + Ejecuta todo (Windows)** |
+| `npm run prod:linux` | **Modo producción: Compila + Ejecuta todo (Linux/Mac)** |
+| `npm run start:win` | Ejecuta en modo producción (Windows, requiere build previo) |
+| `npm run start` | Ejecuta en modo producción (Linux/Mac, requiere build previo) |
 | `npm run preview` | Previsualiza la versión de producción |
 
 ---
@@ -190,17 +227,36 @@ npm run dev
 ### ❌ Error: "Cannot find module"
 **Solución**: Ejecuta nuevamente `npm install`
 
-### ❌ Error: "Port 3000 is already in use"
-**Solución**: Cierra cualquier aplicación que esté usando el puerto 3000, o cambia el puerto en `server/index.js`
+### ❌ Error: "Port 3001 is already in use"
+**Solución**: Cierra cualquier aplicación que esté usando el puerto 3001
+```bash
+# Windows
+netstat -ano | findstr :3001
+taskkill /PID <numero_pid> /F
+
+# Linux/Mac
+lsof -ti:3001 | xargs kill -9
+```
 
 ### ❌ Error: "Database connection failed"
 **Solución**: Verifica que el archivo `.env.local` existe y contiene la URL correcta de la base de datos
 
+### ❌ Error: "Cannot GET /" en modo producción
+**Solución**: Asegúrate de haber compilado el frontend primero
+```bash
+npm run build
+npm run start:win  # Windows
+# o
+npm run start      # Linux/Mac
+```
+
 ### ❌ La página no carga en el navegador
 **Solución**: 
-1. Verifica que ambos servicios (frontend y backend) estén corriendo
+1. Verifica que el servicio esté corriendo
 2. Revisa la consola de la terminal en busca de errores
-3. Intenta acceder a `http://localhost:3000/api/health` para verificar que el backend funciona
+3. En modo desarrollo, accede a `http://localhost:5173`
+4. En modo producción, accede a `http://localhost:3001`
+5. Verifica el health check: `http://localhost:3001/api/health`
 
 ### ❌ Error: "npm: command not found"
 **Solución**: Node.js no está instalado correctamente. Descárgalo desde [nodejs.org](https://nodejs.org/)
