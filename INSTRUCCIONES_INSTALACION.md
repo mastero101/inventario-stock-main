@@ -63,18 +63,49 @@ Este comando descargará e instalará todas las bibliotecas necesarias (React, E
 
 ## 🔐 Paso 3: Configurar Variables de Entorno
 
-El proyecto ya incluye un archivo `.env.local` con las credenciales de la base de datos de producción. **No necesitas modificar nada** para empezar a usar el sistema.
+El proyecto requiere un archivo `.env.local` con las credenciales de conexión a la base de datos y servicios externos.
 
-### Contenido del archivo `.env.local`:
+### Crear el archivo `.env.local`:
+
+1. En la raíz del proyecto, crea un archivo llamado `.env.local`
+2. Copia el siguiente contenido:
+
 ```env
-GEMINI_API_KEY=<URL_DEL_SCRIPT_DE_GOOGLE>
-DATABASE_URL=postgres://default:DJex7IaqFB6C@ep-lively-wave-a56s0rog-pooler.us-east-2.aws.neon.tech/verceldb?sslmode=require
+GEMINI_API_KEY=TU_API_KEY_DE_GEMINI
+DATABASE_URL=TU_URL_DE_CONEXION_POSTGRESQL
 ```
 
-### ⚠️ Importante:
-- **NO compartas** este archivo públicamente (ya está en `.gitignore`)
-- Si necesitas usar una base de datos diferente, reemplaza el valor de `DATABASE_URL`
-- La API Key de Gemini es opcional (solo se usa para las funciones de IA)
+### Obtener las Credenciales:
+
+#### 🔹 DATABASE_URL (Obligatorio)
+**Contacta al administrador del sistema** para obtener la URL de conexión a la base de datos PostgreSQL.
+
+La URL tiene el siguiente formato:
+```
+postgres://usuario:contraseña@host:puerto/nombre_base_datos?sslmode=require
+```
+
+**Ejemplo** (NO usar en producción):
+```
+postgres://miusuario:mipassword@localhost:5432/inventario?sslmode=require
+```
+
+#### 🔹 GEMINI_API_KEY (Opcional)
+Solo necesaria si vas a usar las funciones de IA (Asistente y Estudio Creativo).
+
+Para obtener tu API Key:
+1. Ve a [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Inicia sesión con tu cuenta de Google
+3. Crea una nueva API Key
+4. Cópiala y pégala en el archivo `.env.local`
+
+### ⚠️ IMPORTANTE - Seguridad:
+- ❌ **NUNCA** compartas el archivo `.env.local` públicamente
+- ❌ **NUNCA** subas este archivo a GitHub o repositorios públicos
+- ❌ **NUNCA** incluyas credenciales en capturas de pantalla
+- ✅ El archivo ya está incluido en `.gitignore` para evitar commits accidentales
+- ✅ Cada desarrollador debe tener su propio archivo `.env.local`
+- ✅ En producción, usa variables de entorno del servidor (no archivos)
 
 ---
 
