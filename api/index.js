@@ -17,13 +17,13 @@ async function ensureDbInit() {
 }
 
 // Health check
-app.get('/api/health', async (req, res) => {
+app.get('/health', async (req, res) => {
     await ensureDbInit();
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // --- PRODUCTOS ---
-app.get('/api/products', async (req, res) => {
+app.get('/products', async (req, res) => {
     try {
         await ensureDbInit();
         const products = await sql`SELECT * FROM products ORDER BY nombre ASC`;
@@ -41,7 +41,7 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
-app.post('/api/products', async (req, res) => {
+app.post('/products', async (req, res) => {
     const { id, codigo, nombre, stockActual, stockMinimo, precio } = req.body;
     try {
         await ensureDbInit();
@@ -61,7 +61,7 @@ app.post('/api/products', async (req, res) => {
     }
 });
 
-app.delete('/api/products/:id', async (req, res) => {
+app.delete('/products/:id', async (req, res) => {
     try {
         await ensureDbInit();
         await sql`DELETE FROM products WHERE id = ${req.params.id}`;
@@ -72,7 +72,7 @@ app.delete('/api/products/:id', async (req, res) => {
 });
 
 // --- MOVIMIENTOS ---
-app.get('/api/movements', async (req, res) => {
+app.get('/movements', async (req, res) => {
     try {
         await ensureDbInit();
         const movements = await sql`SELECT * FROM movements ORDER BY fecha DESC`;
@@ -92,7 +92,7 @@ app.get('/api/movements', async (req, res) => {
     }
 });
 
-app.post('/api/movements', async (req, res) => {
+app.post('/movements', async (req, res) => {
     const { id, productoId, productoNombre, tipo, cantidad, motivo, usuario } = req.body;
     try {
         await ensureDbInit();
@@ -114,7 +114,7 @@ app.post('/api/movements', async (req, res) => {
 });
 
 // --- AUTENTICACIÓN ---
-app.post('/api/auth/login', async (req, res) => {
+app.post('/auth/login', async (req, res) => {
     const { email, password } = req.body;
     try {
         await ensureDbInit();
@@ -130,7 +130,7 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
-app.get('/api/users', async (req, res) => {
+app.get('/users', async (req, res) => {
     try {
         await ensureDbInit();
         const users = await sql`SELECT id, nombre, email, role, avatar FROM users ORDER BY nombre ASC`;
@@ -140,7 +140,7 @@ app.get('/api/users', async (req, res) => {
     }
 });
 
-app.post('/api/users', async (req, res) => {
+app.post('/users', async (req, res) => {
     const { id, nombre, email, password, role, avatar } = req.body;
     try {
         await ensureDbInit();
@@ -160,7 +160,7 @@ app.post('/api/users', async (req, res) => {
     }
 });
 
-app.delete('/api/users/:id', async (req, res) => {
+app.delete('/users/:id', async (req, res) => {
     try {
         await ensureDbInit();
         await sql`DELETE FROM users WHERE id = ${req.params.id}`;
@@ -170,7 +170,7 @@ app.delete('/api/users/:id', async (req, res) => {
     }
 });
 
-app.patch('/api/users/:id/role', async (req, res) => {
+app.patch('/users/:id/role', async (req, res) => {
     const { role } = req.body;
     try {
         await ensureDbInit();
