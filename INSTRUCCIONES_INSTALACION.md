@@ -1,0 +1,263 @@
+# 📦 Sistema de Gestión de Inventario - Secretaría de Trabajo del Chubut
+
+## 🚀 Guía de Instalación y Configuración
+
+Este documento contiene las instrucciones completas para instalar y ejecutar el Sistema de Gestión de Inventario en tu máquina local.
+
+---
+
+## 📋 Requisitos Previos
+
+Antes de comenzar, asegúrate de tener instalado lo siguiente en tu computadora:
+
+### 1. **Node.js** (versión 18 o superior)
+   - **Descargar**: [https://nodejs.org/](https://nodejs.org/)
+   - **Verificar instalación**: Abre una terminal/consola y ejecuta:
+     ```bash
+     node --version
+     npm --version
+     ```
+   - Deberías ver las versiones instaladas (ejemplo: `v18.17.0` y `9.6.7`)
+
+### 2. **Git** (opcional, pero recomendado)
+   - **Descargar**: [https://git-scm.com/](https://git-scm.com/)
+   - **Verificar instalación**:
+     ```bash
+     git --version
+     ```
+
+### 3. **Editor de Código** (recomendado)
+   - **Visual Studio Code**: [https://code.visualstudio.com/](https://code.visualstudio.com/)
+   - O cualquier editor de tu preferencia
+
+---
+
+## 📥 Paso 1: Obtener el Código del Proyecto
+
+### Opción A: Clonar con Git (recomendado)
+```bash
+git clone <URL_DEL_REPOSITORIO>
+cd inventario-stock-main
+```
+
+### Opción B: Descargar ZIP
+1. Descarga el archivo ZIP del proyecto
+2. Extrae el contenido en una carpeta de tu elección
+3. Abre una terminal en esa carpeta
+
+---
+
+## 🔧 Paso 2: Instalar Dependencias
+
+Dentro de la carpeta del proyecto, ejecuta:
+
+```bash
+npm install
+```
+
+Este comando descargará e instalará todas las bibliotecas necesarias (React, Express, Neon Database, etc.). El proceso puede tardar 2-5 minutos dependiendo de tu conexión a internet.
+
+**Nota**: Si aparecen advertencias (warnings) en amarillo, puedes ignorarlas. Solo preocúpate si ves errores en rojo.
+
+---
+
+## 🔐 Paso 3: Configurar Variables de Entorno
+
+El proyecto ya incluye un archivo `.env.local` con las credenciales de la base de datos de producción. **No necesitas modificar nada** para empezar a usar el sistema.
+
+### Contenido del archivo `.env.local`:
+```env
+GEMINI_API_KEY=<URL_DEL_SCRIPT_DE_GOOGLE>
+DATABASE_URL=postgres://default:DJex7IaqFB6C@ep-lively-wave-a56s0rog-pooler.us-east-2.aws.neon.tech/verceldb?sslmode=require
+```
+
+### ⚠️ Importante:
+- **NO compartas** este archivo públicamente (ya está en `.gitignore`)
+- Si necesitas usar una base de datos diferente, reemplaza el valor de `DATABASE_URL`
+- La API Key de Gemini es opcional (solo se usa para las funciones de IA)
+
+---
+
+## ▶️ Paso 4: Iniciar el Sistema
+
+### Opción 1: Iniciar Frontend y Backend Simultáneamente (Recomendado)
+
+```bash
+npm run dev:all
+```
+
+Este comando iniciará:
+- **Backend (API)** en `http://localhost:3000`
+- **Frontend (Interfaz)** en `http://localhost:5173`
+
+### Opción 2: Iniciar Servicios por Separado
+
+**Terminal 1 - Backend:**
+```bash
+npm run server
+```
+
+**Terminal 2 - Frontend:**
+```bash
+npm run dev
+```
+
+---
+
+## 🌐 Paso 5: Acceder al Sistema
+
+1. Abre tu navegador web (Chrome, Firefox, Edge, etc.)
+2. Navega a: **`http://localhost:5173`**
+3. Deberías ver la pantalla de inicio de sesión
+
+### 👤 Credenciales de Acceso por Defecto
+
+**Usuario Administrador:**
+- **Email**: `admin@chubut.gov.ar`
+- **Contraseña**: `admin123`
+
+**Usuario Operador:**
+- **Email**: `operador@chubut.gov.ar`
+- **Contraseña**: `operador123`
+
+---
+
+## 🛠️ Comandos Disponibles
+
+| Comando | Descripción |
+|---------|-------------|
+| `npm run dev` | Inicia solo el frontend (Vite) |
+| `npm run server` | Inicia solo el backend (Express) |
+| `npm run dev:all` | Inicia frontend y backend simultáneamente |
+| `npm run build` | Genera la versión de producción |
+| `npm run preview` | Previsualiza la versión de producción |
+
+---
+
+## 📱 Características del Sistema
+
+### Módulos Principales:
+1. **Dashboard** - Panel de control con estadísticas en tiempo real
+2. **Inventario Total** - Gestión completa de productos (CRUD)
+3. **Movimientos de Stock** - Registro de entradas y salidas
+4. **Historial Transaccional** - Auditoría de todas las operaciones
+5. **Gestión de Personal** - Administración de usuarios y permisos
+6. **Asistente IA** - Búsqueda inteligente con Google Gemini
+7. **Estudio Creativo** - Generación de imágenes con IA
+
+### Tecnologías Utilizadas:
+- **Frontend**: React 19 + TypeScript + Tailwind CSS
+- **Backend**: Express.js + Node.js
+- **Base de Datos**: PostgreSQL (Neon Database)
+- **IA**: Google Gemini API
+- **Build Tool**: Vite
+
+---
+
+## 🐛 Solución de Problemas Comunes
+
+### ❌ Error: "Cannot find module"
+**Solución**: Ejecuta nuevamente `npm install`
+
+### ❌ Error: "Port 3000 is already in use"
+**Solución**: Cierra cualquier aplicación que esté usando el puerto 3000, o cambia el puerto en `server/index.js`
+
+### ❌ Error: "Database connection failed"
+**Solución**: Verifica que el archivo `.env.local` existe y contiene la URL correcta de la base de datos
+
+### ❌ La página no carga en el navegador
+**Solución**: 
+1. Verifica que ambos servicios (frontend y backend) estén corriendo
+2. Revisa la consola de la terminal en busca de errores
+3. Intenta acceder a `http://localhost:3000/api/health` para verificar que el backend funciona
+
+### ❌ Error: "npm: command not found"
+**Solución**: Node.js no está instalado correctamente. Descárgalo desde [nodejs.org](https://nodejs.org/)
+
+---
+
+## 🔄 Actualizar el Sistema
+
+Si recibes una nueva versión del código:
+
+```bash
+# Detén los servicios (Ctrl + C en la terminal)
+git pull origin main  # Si usas Git
+npm install           # Instalar nuevas dependencias
+npm run dev:all       # Reiniciar el sistema
+```
+
+---
+
+## 🚪 Detener el Sistema
+
+Para detener los servicios:
+1. Ve a la terminal donde está corriendo el sistema
+2. Presiona `Ctrl + C` (Windows/Linux) o `Cmd + C` (Mac)
+3. Confirma la detención si se solicita
+
+---
+
+## 📞 Soporte Técnico
+
+Si encuentras problemas que no puedes resolver:
+
+1. **Revisa los logs** en la terminal para identificar el error exacto
+2. **Verifica la configuración** del archivo `.env.local`
+3. **Contacta al administrador del sistema** con una captura de pantalla del error
+
+---
+
+## 🔒 Seguridad y Mejores Prácticas
+
+### ✅ Recomendaciones:
+- **Cambia las contraseñas por defecto** después del primer inicio de sesión
+- **No expongas** el puerto 3000 a internet sin configurar un firewall
+- **Realiza backups** periódicos de la base de datos
+- **Mantén actualizado** Node.js y las dependencias del proyecto
+
+### ⚠️ Advertencias:
+- El archivo `.env.local` contiene información sensible
+- No subas este archivo a repositorios públicos
+- Usa HTTPS en producción (no HTTP)
+
+---
+
+## 📚 Estructura del Proyecto
+
+```
+inventario-stock-main/
+├── components/          # Componentes React (UI)
+├── services/           # Lógica de negocio y APIs
+├── server/             # Backend Express
+│   ├── index.js        # Servidor principal
+│   └── db.js           # Configuración de base de datos
+├── .env.local          # Variables de entorno (NO SUBIR A GIT)
+├── package.json        # Dependencias del proyecto
+├── vite.config.ts      # Configuración de Vite
+└── README.md           # Documentación básica
+```
+
+---
+
+## 🎓 Primeros Pasos Después de la Instalación
+
+1. **Explora el Dashboard** para familiarizarte con la interfaz
+2. **Crea un producto de prueba** en "Inventario Total"
+3. **Registra un movimiento** de entrada o salida
+4. **Revisa el historial** para ver la auditoría
+5. **Crea un nuevo usuario** desde "Gestión de Personal"
+
+---
+
+## 🌟 ¡Listo para Usar!
+
+El sistema está completamente funcional y listo para gestionar el inventario de la Secretaría de Trabajo. Todas las operaciones se sincronizan automáticamente con la base de datos en la nube.
+
+**¡Bienvenido al Sistema de Gestión Institucional!** 🚀
+
+---
+
+**Última actualización**: Febrero 2026  
+**Versión del Sistema**: 1.0.0  
+**Desarrollado para**: Gobierno del Chubut - Secretaría de Trabajo
