@@ -1,7 +1,7 @@
 
 import { User } from '../types';
 
-const API_URL = "http://localhost:4477/api";
+const API_URL = "/api";
 
 export const getUsers = async (): Promise<User[]> => {
   try {

@@ -1,7 +1,7 @@
 
 import { Product, Movement } from '../types';
 
-const API_URL = "http://localhost:4477/api";
+const API_URL = "/api";
 
 export const db = {
   // --- PRODUCTOS ---
